@@ -87,4 +87,5 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:30.3.1')
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.firebase:firebase-messaging:20.1.0'
+     ext.kotlin_version = '1.9.0'
 }

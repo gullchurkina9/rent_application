@@ -5,6 +5,8 @@ import 'package:rent_application/helpers/helpers.dart';
 import 'package:rent_application/helpers/message_exception.dart';
 import 'package:rent_application/helpers/size_config.dart';
 import 'package:rent_application/repository/firebase_auth.dart';
+import 'package:rent_application/screens/RegisterAccountScreen.dart';
+import 'package:rent_application/screens/TabNvigator.dart';
 import 'package:rent_application/theme/model_theme.dart';
 import 'package:provider/provider.dart';
 import 'package:pinput/pin_put/pin_put.dart';
@@ -20,41 +22,41 @@ class AuthScreen extends StatefulWidget {
 }
 
 class _AuthScreenState extends State<AuthScreen> {
-final _auth = FirebaseAuth.instance;
-final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-final GlobalKey<FormState> _formKeyRegister = GlobalKey<FormState>();
+  final _auth = FirebaseAuth.instance;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKeyRegister = GlobalKey<FormState>();
 
-int numScreen = 1;
+  int numScreen = 1;
 
-String _email = '';
-String _password = '';
-bool _obscurePassword = true;
-String _verificationID = '';
-bool codeSumbit = false;
-bool codeVerify = true;
-final _pinPutController = TextEditingController();
-TextEditingController _phone = TextEditingController();
+  String _email = '';
+  String _password = '';
+  bool _obscurePassword = true;
+  String _verificationID = '';
+  bool codeSumbit = false;
+  bool codeVerify = true;
+  final _pinPutController = TextEditingController();
+  TextEditingController _phone = TextEditingController();
 
-getPage() {
-switch (numScreen) {
- case 1:
- return phoneForm();
- break;
-case 2:
-return emailForm();
- break;
- default:
-}
-}
+  getPage() {
+    switch (numScreen) {
+      case 1:
+        return phoneForm();
+        break;
+      case 2:
+        return emailForm();
+        break;
+      default:
+    }
+  }
 
-setPage(value) {
-setState(() {
-numScreen = value;
-});
-}
+  setPage(value) {
+    setState(() {
+      numScreen = value;
+    });
+  }
 
-void _validateAuth() async {
+  void _validateAuth() async {
     final FormState? form = _formKey.currentState;
     if (_formKey.currentState!.validate()) {
       helpers.showProgress(
@@ -65,11 +67,13 @@ void _validateAuth() async {
         if (result) {
           helpers.hideProgress();
           print('Document exists on the database');
-          Navigator.pushNamedAndRemoveUntil(
-              context, 'tabNavigator', (Route<dynamic> route) => false);
+          Navigator.of(context)
+              .push(MaterialPageRoute(builder: (context) => TabNavigator()));
         } else {
           helpers.hideProgress();
-          Navigator.pushNamed(context, 'registrationScreen');
+          //Navigator.pushNamed(context, 'registrationScreen');
+          Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => RegisterAccountScreen()));
         }
       } on MessageException catch (e) {
         helpers.hideProgress();
@@ -108,25 +112,25 @@ void _validateAuth() async {
 
   @override
   Widget build(BuildContext context) {
-  final mediaQuery = MediaQuery.of(context).size.height - 110;
+    final mediaQuery = MediaQuery.of(context).size.height - 110;
     return Consumer<ModelTheme>(
-    builder: (context, ModelTheme themeNotifier, child) {
-    return Scaffold(
-    appBar: AppBar(
-    title: Text('Авторизация'),
-    actions: [
-   IconButton(
-    icon: Icon(themeNotifier.isDark
-   ? Icons.nightlight_round
-    : Icons.wb_sunny),
-    onPressed: () {
-    themeNotifier.isDark
-    ? themeNotifier.isDark = false
-      : themeNotifier.isDark = true;
-    })
-    ],
-    ),
-     body: numScreen != 4
+        builder: (context, ModelTheme themeNotifier, child) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('Авторизация'),
+          actions: [
+            IconButton(
+                icon: Icon(themeNotifier.isDark
+                    ? Icons.nightlight_round
+                    : Icons.wb_sunny),
+                onPressed: () {
+                  themeNotifier.isDark
+                      ? themeNotifier.isDark = false
+                      : themeNotifier.isDark = true;
+                })
+          ],
+        ),
+        body: numScreen != 4
             ? Center(
                 child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -136,8 +140,7 @@ void _validateAuth() async {
                             fontSize: 18, fontWeight: FontWeight.bold)),
                     getPage(),
                   ]))
-
-         : Center(
+            : Center(
                 child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -156,7 +159,6 @@ void _validateAuth() async {
                                   child:
                                       Image.asset("assets/img/logo_text.png")),
                             ),
-                            
                             Container(
                               padding: EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 15),
@@ -180,15 +182,14 @@ void _validateAuth() async {
                                     height: 35,
                                   ),
                                   Container(
-                   margin: EdgeInsets.only(
+                                    margin: EdgeInsets.only(
                                         left:
                                             MediaQuery.of(context).size.width /
                                                 10,
                                         right:
                                             MediaQuery.of(context).size.width /
                                                 10),
-                                    child: 
-                                    PinPut(
+                                    child: PinPut(
                                         onSubmit: (value) async {
                                           try {
                                             bool value =
@@ -226,8 +227,7 @@ void _validateAuth() async {
                                   if (!codeVerify)
                                     Text('Неверный код',
                                         style: TextStyle(fontSize: 14)),
-
-                                           ],
+                                ],
                               ),
                             ),
                           ],
@@ -239,7 +239,7 @@ void _validateAuth() async {
     });
   }
 
-Widget _authButton(context,
+  Widget _authButton(context,
       {required IconData iconName, required Function func}) {
     return Container(
       height: 25,
@@ -252,7 +252,7 @@ Widget _authButton(context,
     );
   }
 
-Widget emailForm() {
+  Widget emailForm() {
     return Column(
       children: [
         Row(
@@ -262,7 +262,6 @@ Widget emailForm() {
               'Вход по Email',
               style: TextStyle(fontSize: 14),
             ),
-            
           ],
         ),
         SizedBox(
@@ -290,7 +289,7 @@ Widget emailForm() {
                 onSaved: (input) {
                   _email = input!;
                 },
-                 validator: (value) {
+                validator: (value) {
                   if (value != null || value!.isNotEmpty) {
                     final RegExp regex = RegExp(
                         r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)| (\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$');
@@ -304,12 +303,12 @@ Widget emailForm() {
                 },
                 decoration: InputDecoration(
                   errorStyle: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFFFF0000)),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFFFF0000)),
                   contentPadding:
                       EdgeInsets.symmetric(vertical: 15, horizontal: 0),
-                   prefixIcon: Container(child: Icon(Icons.email)),
+                  prefixIcon: Container(child: Icon(Icons.email)),
                   //   transform: Matrix4.translationValues(-10.0, 0.0, 0.0),
                   //   child: SvgPicture.asset(
                   //     'assets/svg/mail.svg',
@@ -330,7 +329,7 @@ Widget emailForm() {
               ),
               SizedBox(
                 height: 25,
-),
+              ),
               Text(
                 'Пароль',
                 style: TextStyle(fontSize: 14),
@@ -341,34 +340,34 @@ Widget emailForm() {
               TextFormField(
                 obscureText: _obscurePassword,
                 onSaved: (input) => _password = input!,
-                 validator: (input) {
-                   if (input!.isEmpty) {
-                     return "Неверный пароль";
-                   } else {
-                     if (input.length < 6) {
-                       return "Пароль слишком короткий";
-                     } else {
-                       return null;
-                     }
-                   }
-                 },
+                validator: (input) {
+                  if (input!.isEmpty) {
+                    return "Неверный пароль";
+                  } else {
+                    if (input.length < 6) {
+                      return "Пароль слишком короткий";
+                    } else {
+                      return null;
+                    }
+                  }
+                },
                 decoration: InputDecoration(
                   errorStyle: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFFFF0000)),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFFFF0000)),
                   contentPadding:
                       EdgeInsets.symmetric(vertical: 15, horizontal: 0),
-                   suffixIcon: InkWell(
-                       onTap: () {
-                          setState(() {
-                            _obscurePassword = !_obscurePassword;
-                          });
-                      },
-                       child: Icon(Icons.remove_red_eye),
-                       ),
+                  suffixIcon: InkWell(
+                    onTap: () {
+                      setState(() {
+                        _obscurePassword = !_obscurePassword;
+                      });
+                    },
+                    child: Icon(Icons.remove_red_eye),
+                  ),
                   //         width: 15, height: 15, fit: BoxFit.scaleDown)),
-                   prefixIcon: Container(child: Icon(Icons.password)),
+                  prefixIcon: Container(child: Icon(Icons.password)),
                   //   transform: Matrix4.translationValues(-10.0, 0.0, 0.0),
                   //   child: SvgPicture.asset(
                   //     'assets/svg/key.svg',
@@ -395,17 +394,17 @@ Widget emailForm() {
                 height: 25.0,
               ),
               Container(
- width: MediaQuery.of(context).size.width,
- child: ElevatedButton(
- style: ElevatedButton.styleFrom(
- textStyle: const TextStyle(fontSize: 20)),
- onPressed: () {
- _validateAuth();
- },
- child: const Text('Войти'),
- ),
-),
-SizedBox(
+                width: MediaQuery.of(context).size.width,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      textStyle: const TextStyle(fontSize: 20)),
+                  onPressed: () {
+                    _validateAuth();
+                  },
+                  child: const Text('Войти'),
+                ),
+              ),
+              SizedBox(
                 height: 14,
               ),
               // Center(
@@ -441,9 +440,9 @@ SizedBox(
     );
   }
 
-Widget phoneForm() {
-     var maskFormatter = new MaskTextInputFormatter(
-         mask: '+7 (###) ###-##-##', filter: {"#": RegExp(r'[0-9]')});
+  Widget phoneForm() {
+    var maskFormatter = new MaskTextInputFormatter(
+        mask: '+7 (###) ###-##-##', filter: {"#": RegExp(r'[0-9]')});
     return Column(
       children: [
         Text('Добро пожаловать', style: TextStyle(fontSize: 14)),
@@ -462,7 +461,7 @@ Widget phoneForm() {
             children: [
               Text(
                 'Номер телефона',
-style: TextStyle(fontSize: 14),
+                style: TextStyle(fontSize: 14),
               ),
               SizedBox(
                 height: 15,
@@ -480,21 +479,20 @@ style: TextStyle(fontSize: 14),
               SizedBox(
                 height: 25,
               ),
-
               SizedBox(
                 height: 25,
               ),
               Container(
- width: MediaQuery.of(context).size.width,
- child: ElevatedButton(
- style: ElevatedButton.styleFrom(
- textStyle: const TextStyle(fontSize: 20)),
- onPressed: () {
- _phoneAuth();
- },
- child: const Text('Войти'),
- ),
- ),
+                width: MediaQuery.of(context).size.width,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      textStyle: const TextStyle(fontSize: 20)),
+                  onPressed: () {
+                    _phoneAuth();
+                  },
+                  child: const Text('Войти'),
+                ),
+              ),
               SizedBox(
                 height: 25,
               ),
@@ -513,13 +511,14 @@ style: TextStyle(fontSize: 14),
       ],
     );
   }
-Widget socialLink() {
- return Column(
- crossAxisAlignment: CrossAxisAlignment.start,
-children: [
-Text(
- 'Войти c помощью',
-style: TextStyle(fontSize: 14),
+
+  Widget socialLink() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Войти c помощью',
+          style: TextStyle(fontSize: 14),
         ),
         SizedBox(
           height: 20,
@@ -540,6 +539,4 @@ style: TextStyle(fontSize: 14),
       ],
     );
   }
-
-
 }
